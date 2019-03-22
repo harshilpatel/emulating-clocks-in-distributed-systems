@@ -1,1 +1,12 @@
-Implement totally ordered multicasting using Lamport’s algorithm. Each process conducts local operations and numbers them as PID.EVENT_ID. After each operation is done, a process multicasts the event to all other processes in the distributed system. The expected outcome of this assignment is that events occurred at different processes will appear in the same order at each individual process. To realize such a total order of events, each process maintains a buffer for received events and follow the rules on slide 19 in Lecture 6 when delivering the events. In this assignment, the delivery of events is simply printing them on screen, in the format of CURRENT_PID: PID.EVENT_ID. HINT: You may use two threads in each process to handle the communication and deal with message delivery, respectively. Refer to the multi-threaded server example discussed in class. The communication thread enqueues updates in a buffer, from where the delivery thread enforces a total order of events. The communication thread is also responsible for sending acknowledgements for received messages.
+Implement totally ordered multicasting using Lamport’s algorithm. 
+Each process conducts local operations and numbers them as PID.EVENT_ID. 
+
+After each operation is done, a process multicasts the event to all other processes in the distributed system. 
+
+The expected outcome of this assignment is that events occurred at different processes will appear in the same order at each individual process. 
+To realize such a total order of events, each process maintains a buffer for received events and follow the rules on slide 19 in Lecture 6 when delivering the events. 
+In this assignment, the delivery of events is simply printing them on screen, in the format of CURRENT_PID: PID.EVENT_ID. 
+HINT: You may use two threads in each process to handle the communication and deal with message delivery, respectively. 
+Refer to the multi-threaded server example discussed in class. 
+The communication thread enqueues updates in a buffer, from where the delivery thread enforces a total order of events. 
+The communication thread is also responsible for sending acknowledgements for received messages.
