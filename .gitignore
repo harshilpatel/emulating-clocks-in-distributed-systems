@@ -1,3 +1,4 @@
-.vscode
-.class
-.pyc
+**/*.vscode
+**/*.class
+**/*.pyc
+**/*.log
