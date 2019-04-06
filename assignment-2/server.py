@@ -14,13 +14,13 @@ class Server(object):
         self.address = address
         self.socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.processes = []
+        self.event_counter = 0
 
     def serve_infinitely(self):
         self.socket_server.bind(self.address)
         self.socket_server.listen(1)
 
         logger.info("starting server & listen to packets at %s", self.address)
-
 
         while True:
             connection, client_address = self.socket_server.accept()
@@ -32,38 +32,41 @@ class Server(object):
                         break
 
                     logger.debug("received data: %s from client: %s", data, client_address)
-                    # result = self.process_request_data(data)
+                    random_process = random.choice(self.processes)
+                    # random_process = self.processes[0]
+                    self.event_counter += 1
+                    random_process.process_incoming(data, True, self.event_counter)
                     connection.send('')
             finally:
                 connection.close()
                 logger.info("closed connection to client with address: %s", client_address)
-    
+
     def create_child_process(self):
         addresses = [('localhost', random.randint(9000, 9999)) for x in range(NUM_OF_CHILDREN)]
-        for a in addresses:
+        for i,a in enumerate(addresses):
             logger.info("creating a server process for address: %s", a)
-            self.processes.append(ServerProcess(a, addresses, 10))
+            self.processes.append(ServerProcess(i, a, addresses, 2))
         
         for p in self.processes:
-            p.start()
-
-
+            p.run()
 
 
 if __name__ == "__main__":
     server = Server(('localhost', 8080))
+    server.create_child_process()
 
     def handle_exit(sig, frame):
         logger.warn("terminating processes")
-        for p in server.processes:
+        for p in server.processes:  
+            print "terminating process " + str(p.name)
             p.stop_executing = True
-            p.terminate()
         sys.exit()
 
     signal.signal(signal.SIGINT, handle_exit)
     signal.signal(signal.SIGTERM, handle_exit)
+    signal.signal(signal.SIGTSTP, handle_exit)
+    signal.signal(signal.SIGQUIT, handle_exit)
     
-    server.create_child_process()
     server.serve_infinitely()
 
     # time.sleep(5) 
