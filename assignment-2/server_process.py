@@ -7,9 +7,7 @@ from utils import getProcessLogger
 from multiprocessing import connection, Process
 import threading
 from threading import Thread
-
-NUM_OF_CHILDREN = 3
-AUTH_KEY = 'djn4lk4'
+from constants import *
 
 class BaseEventFeatures(object):
     def __init__(self):
@@ -17,13 +15,13 @@ class BaseEventFeatures(object):
 
     def print_message(self, msg):
         print msg
-        self.logger.debug("print msg %s", msg)
+        self.logger.info("print msg %s", msg)
 
     def add(self, a, b):
         return a+b
 
     def save_content(self, filename, content):
-        self.logger.debug("saving content to file: %s", filename)
+        self.logger.info("saving content to file: %s", filename)
         fileobject = open(self.parent.name + ":" + self.filename, 'a')
         fileobject.write(content)
         fileobject.close()
@@ -37,6 +35,7 @@ class ExecutionQueue(object):
         self.process_index = process_index
 
         self.logger = getProcessLogger(self.parent.name + ": ExecutionQueue")
+        self.logger.setLevel(LOGGING_LEVEL)
     
     def execute_next_event(self):
         for e in sorted(self.queue.keys()):
@@ -84,6 +83,7 @@ class ServerEvent(BaseEventFeatures):
         self.timestamp = [0 for x in range(NUM_OF_CHILDREN)]
 
         self.logger = getProcessLogger(self.parent.name + ":" + self.name)
+        self.logger.setLevel(LOGGING_LEVEL)
 
         self.logger.info("created event:%s", self.name)
     
@@ -109,7 +109,7 @@ class ServerEvent(BaseEventFeatures):
 
     def start_executing(self):
         self.started = True
-        self.logger.debug("executing %s", self.name)
+        self.logger.info("executing %s:%-10s when ts(%s):%-10s", self.name, self.timestamp, self.parent.name, self.parent.execution_queue.current_time_stamp)
         self.finished = True
         # callable_func = self.get_attr(self, self.operation_name)
         # if callable_func:
@@ -144,6 +144,7 @@ class ServerProcess(object):
 
         self.stop_executing = False
         self.logger = getProcessLogger('process')
+        self.logger.setLevel(LOGGING_LEVEL)
         self.lock = threading.Lock()
 
 
@@ -169,6 +170,7 @@ class ServerProcess(object):
 
     def run(self):
         self.logger = getProcessLogger(self.name)
+        self.logger.setLevel(LOGGING_LEVEL)
         self.logger.info("started process")
 
         t = Thread(target=self._run_threads)
@@ -189,6 +191,7 @@ class ServerProcess(object):
                     # data['id'] = self.execution_queue.current_time_stamp[self.id] + 1
 
                 self.create_event(data)
+                self.logger.info("-"*30 + " changed time stamp: %s", self.execution_queue.current_time_stamp)
             
             # if data_type == 'ack':
             #     event_id = data.get('operation_id')
@@ -210,10 +213,9 @@ class ServerProcess(object):
         listener = connection.Listener(self.address, authkey=AUTH_KEY)
         while not self.stop_executing:
             conn = listener.accept()
-            self.logger.debug("current time stamp: %s", self.execution_queue.current_time_stamp)
             if conn:
                 data = conn.recv()
-                self.logger.info("received new event: %s", "E" + str(data.get('id') or 0))
+                self.logger.debug("received new event: %s", "E" + str(data.get('id') or 0))
                 if data:
                     self.process_incoming(data)
                 conn.close()
@@ -224,8 +226,7 @@ class ServerProcess(object):
     def serve_events(self):
         self.logger.info("started thread server %s", self.name)
         while not self.stop_executing:
-            time.sleep(2)
-            self.logger.debug("current time stamp: %s", self.execution_queue.current_time_stamp)
+            time.sleep(3)
             for e in self.events:
                 # if not e.is_real_owner:
                 #     if not e.sent_at or (e.sent_at and (self.timer - e.sent_at) > 1000):

@@ -4,10 +4,10 @@ from server_process import ServerProcess
 from threading import Thread
 from multiprocessing import Process
 import signal
+from constants import *
 
 logger = getProcessLogger('server')
-NUM_OF_CHILDREN = 3
-BUFF_SIZE = 1024
+logger.setLevel(LOGGING_LEVEL)
 
 class Server(object):
     def __init__(self, address):
@@ -24,7 +24,7 @@ class Server(object):
 
         while True:
             connection, client_address = self.socket_server.accept()
-            logger.info("received a new connection with address %s", client_address)
+            logger.debug("received a new connection with address %s", client_address)
             try:
                 while True:
                     data = connection.recv(BUFF_SIZE)
@@ -39,7 +39,7 @@ class Server(object):
                     connection.send('')
             finally:
                 connection.close()
-                logger.info("closed connection to client with address: %s", client_address)
+                logger.debug("closed connection to client with address: %s", client_address)
 
     def create_child_process(self):
         addresses = [('localhost', random.randint(9000, 9999)) for x in range(NUM_OF_CHILDREN)]

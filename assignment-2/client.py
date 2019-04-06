@@ -2,10 +2,11 @@ import sys, os, socket, logging, math
 import json
 from utils import getProcessLogger
 import time
+from constants import *
 
 
-
-logger = getProcessLogger('client')
+logger = getProcessLogger('Client')
+logger.setLevel(LOGGING_LEVEL)
 
 address = ('localhost', 8080)
 
@@ -16,16 +17,19 @@ msg = {
 }
 
 
+
+
 while True:
-    time.sleep(5)
+    time.sleep(1)
     try:
         socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_client.connect(address)
         socket_client.send(json.dumps(msg))
-        socket_client.close()
-        print "sent"
-    except:
-        print "error"
+        logger.info("Sent message")
+    except Exception as e:
+        logger.info("Error")
         pass
+    
+    socket_client.close()
 
 # print socket_client.sendto(json.dumps(msg),address)
