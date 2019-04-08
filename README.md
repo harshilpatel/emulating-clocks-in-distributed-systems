@@ -20,9 +20,6 @@ Assignment 1
         a. Open 2 terminals. The server & client require their individual terminals to read the logs & understand the flow.
         b. on terminal 1: `cd assignment-1/ && javac *.java && java Server`
         c. on terminal 2: `cd assignment-1/ && java Client`
-    
-    The workflow:
-        a. 
 
 Assignment 2
     How to run:
