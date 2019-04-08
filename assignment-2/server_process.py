@@ -14,15 +14,15 @@ class BaseEventFeatures(object):
         return
 
     def print_message(self, msg):
-        print msg
-        self.logger.info("print msg %s", msg)
+        self.logger.info("print_message: %s", msg)
 
     def add(self, a, b):
         return a+b
 
     def save_content(self, filename, content):
+        content = "\n" + content
         self.logger.info("saving content to file: %s", filename)
-        fileobject = open(self.parent.name + ":" + self.filename, 'a')
+        fileobject = open(self.parent.name + ":" + filename, 'a')
         fileobject.write(content)
         fileobject.close()
 
@@ -46,7 +46,7 @@ class ExecutionQueue(object):
     def add_event_to_queue(self, event):
         self.set_time_stamp(event.timestamp)
         event.timestamp = self.current_time_stamp
-        self.queue[event.get_time_stamp] = event
+        self.queue[event.get_time_stamp()] = event
 
         self.logger.debug("adding event:%s to queue", event.name)
     
@@ -54,7 +54,7 @@ class ExecutionQueue(object):
         return [j+1 if i == self.parent.id else j for i,j in enumerate(self.current_time_stamp)]
 
     def get_time_stamp(self):
-        return ''.join(self.current_time_stamp)
+        return ''.join([str(x) for x in self.current_time_stamp])
     
     def set_time_stamp(self, timestamp):
         self.current_time_stamp = [max(j, self.current_time_stamp[i]) for i,j in enumerate(timestamp)]
@@ -88,7 +88,7 @@ class ServerEvent(BaseEventFeatures):
         self.logger.info("created event:%s", self.name)
     
     def get_time_stamp(self):
-        return ''.join(self.timestamp)
+        return ''.join([str(x) for x in self.timestamp])
     
     def get_normalised_data(self):
         return {
@@ -111,15 +111,15 @@ class ServerEvent(BaseEventFeatures):
         self.started = True
         self.logger.info("executing %s:%-10s when ts(%s):%-10s", self.name, self.timestamp, self.parent.name, self.parent.execution_queue.current_time_stamp)
         self.finished = True
-        # callable_func = self.get_attr(self, self.operation_name)
-        # if callable_func:
-        #     callable_func(*self.operation_params)
+        callable_func = getattr(self, self.operation_name)
+        if callable_func:
+            callable_func(*self.operation_params)
         return None
     
+        
     @property
     def can_be_executed(self):
         return False
-
 
 class ServerProcess(object):
     def __init__(self, id, address, all_address, clock_cycle):
@@ -226,7 +226,7 @@ class ServerProcess(object):
     def serve_events(self):
         self.logger.info("started thread server %s", self.name)
         while not self.stop_executing:
-            time.sleep(3)
+            # time.sleep(3)
             for e in self.events:
                 # if not e.is_real_owner:
                 #     if not e.sent_at or (e.sent_at and (self.timer - e.sent_at) > 1000):

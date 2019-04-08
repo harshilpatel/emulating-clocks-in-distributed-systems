@@ -10,17 +10,20 @@ logger.setLevel(LOGGING_LEVEL)
 
 address = ('localhost', 8080)
 
-msg = {
-    'type': 'operation',
-    'operation_name': "print_message",
-    'params': ("abc"),
-}
+message_counter = 0
 
 
-
-
-while True:
-    time.sleep(1)
+while message_counter < 10:
+    message_counter += 1
+    content = "message %s" % message_counter 
+    
+    msg = {
+        'type': 'operation',
+        'operation_name': "save_content",
+        'params': ["eventOutput.txt", content],
+    }
+    
+    time.sleep(0.8)
     try:
         socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_client.connect(address)
