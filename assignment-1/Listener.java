@@ -50,30 +50,25 @@ public class Listener extends Thread{
             
             data = data.replace("{", "");
             data = data.replace("}", "");
-            
-            // System.out.println(data);
 
             Map<String,String> mappedData = new HashMap<String, String>();
             String[] splitData = data.split("/*,/*");
-            // System.out.println(splitData.length);
             
             for(int i=0; i<splitData.length; i++){
                 String[] keyValue = splitData[i].split("/*=/*");
-                // System.out.println(keyValue[0]);
-                // System.out.println(keyValue[1]);
 
                 mappedData.put(keyValue[0].replace(" ", ""), keyValue[1].replace(" ", ""));
             }
 
-            // System.out.println(mappedData.toString());
+            
 
             if(mappedData.containsKey("type") && mappedData.get("type").equals("ack")){
-                // System.out.println("");
                 // ack is received
                 int event_id = Integer.valueOf(mappedData.get("event_id"));
                 parent.ackEvent(event_id);
 
             } else if(mappedData.get("type").equals("event")){
+                // event is received
                 if(!mappedData.containsKey("event_id")){
                     mappedData.put("event_id", "" + this.parent.getQueueLength());
                 }
@@ -90,6 +85,16 @@ public class Listener extends Thread{
                     } else {
                         e.isParentOwner = true;
                     }
+
+                    if(mappedData.containsKey("timestamp")){
+                        int ts = Integer.parseInt(mappedData.get("timestamp"));
+                        while(ts > parent.timestamp){
+                            parent.timestamp = parent.timestamp + parent.proceesorSpeed;
+                        }
+
+                        System.out.println("Processor ts was incremented to:" + parent.timestamp);
+                    }
+
                     parent.eventQueue.addEventToQueue(e);
                 }
                 

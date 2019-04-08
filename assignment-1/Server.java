@@ -6,9 +6,9 @@ public class Server{
     // Base Server starting connections
 
     public static void main(String[] args) throws IOException{
-        ServerProcess p1 = new ServerProcess(1, "P1", 9000);
-        ServerProcess p2 = new ServerProcess(2, "P2", 9001);
-        ServerProcess p3 = new ServerProcess(3, "P3", 9002);
+        ServerProcess p1 = new ServerProcess(1, "P1", 9000, 2);
+        ServerProcess p2 = new ServerProcess(2, "P2", 9001, 4);
+        ServerProcess p3 = new ServerProcess(3, "P3", 9002, 6);
 
         // p1.setDaemon(true);
         // p2.setDaemon(true);

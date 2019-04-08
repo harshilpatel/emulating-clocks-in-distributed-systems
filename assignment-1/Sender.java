@@ -71,7 +71,6 @@ public class Sender extends Thread{
             Socket socket = new Socket("localhost", p);
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             out.writeUTF(e.getAck());
-            // out.writeUTF("ack " + e.id);
             socket.close();
         }
     }

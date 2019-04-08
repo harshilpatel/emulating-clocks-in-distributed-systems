@@ -47,9 +47,8 @@ class Event{
         data.put("operation_name", this.operationName);
         data.put("event_params", this.operationParams);
         data.put("sent_from", String.valueOf(parent.id));
+        data.put("timestamp", "" + parent.timestamp);
         data.put("type", "event");
-        
-        // System.out.println(data.toString());
         
         return data.toString();
     }
@@ -57,9 +56,9 @@ class Event{
     String getAck(){
         Map<String, String> data = new HashMap<String, String>();
         data.put("event_id", Integer.toString(this.id));
+        data.put("timestamp", "" + parent.timestamp);
         data.put("type", "ack");
 
-        // System.out.println(data.toString());
         return data.toString();
     }
 
@@ -81,7 +80,7 @@ class Event{
         started = true;
 
         if(isParentOwner){
-            System.out.println("Executing: self process:" + name + " at:" + parent.name + " after ack from:" + acknowledgedBy);
+            System.out.println("Executing: self process:" + name + " at:" + parent.name + " after acknowledgement received from:" + acknowledgedBy + " processes");
         } else {
             System.out.println("Executing: foreign process:" + name + " at:" + parent.name);
         }
@@ -92,7 +91,6 @@ class Event{
     void addAck(){
         if(!finished && acknowledgedBy < 3)
             acknowledgedBy++;
-            // System.out.println("ack received for:" + name + " at:" + parent.name);
     }
 
     void acknowledge(){
